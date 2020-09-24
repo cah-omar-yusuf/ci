@@ -10,7 +10,7 @@ inputs:
   - name: ci
 run:
   path: /bin/sh
-  args: ["./scripts/gradle-test.sh"]
+  args: [".ci/scripts/gradle-test.sh"]
 caches:
   - path: .gradle/
 
