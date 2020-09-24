@@ -1,0 +1,22 @@
+resources:
+  - name: project-source
+    type: git
+    source:
+      uri: 'git@github.com:CardinalHealth/rdw-application.git'
+      branch: release
+      private_key: ((common.ent_sales_sfdc_timsarver_test_pk))
+  - name: ci
+    type: git
+    source:
+      uri: 'https://github.com/cah-omar-yusuf/ci.git'
+      branch: master
+      private_key: ((common.ent_sales_sfdc_timsarver_test_pk))
+      
+jobs:
+  - name: Gradle Test
+    plan:
+      - get: project-source
+      - get: ci
+        trigger: true
+      - task: gradle-test
+        file: ci/tasks/gradle-test.yml

@@ -1,0 +1,17 @@
+platform: linux
+
+image_resource:
+  type: registry-image
+  source:
+    repository: "nexus.cardinalhealth.net:8445/anapsix/alpine-java"
+    tag: 8_jdk
+inputs:
+  - name: project-source
+  - name: ci
+run:
+  path: "ci/scripts/gradle-test.sh"
+caches:
+  - path: .gradle/
+
+params:
+  TERM: -dumb
