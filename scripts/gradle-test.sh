@@ -1,2 +1,3 @@
-cd project-source/server
-ls -al
+cd project-source
+chmod +x ./gradlew
+./gradlew clean test
