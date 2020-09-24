@@ -9,14 +9,14 @@ resources:
     type: git
     source:
       uri: 'https://github.com/cah-omar-yusuf/ci.git'
-      branch: master
+      branch: configure-gradle-test
       private_key: ((rdw.RDW_APPLICATION_GIT_PK))
 
 jobs:
   - name: Gradle Test
     plan:
-      - get: project-source
       - get: ci
+      - get: project-source
         trigger: true
       - task: gradle-test
         file: ci/tasks/gradle-test.yml
