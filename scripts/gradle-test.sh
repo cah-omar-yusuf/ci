@@ -1,1 +1,2 @@
-echo "HI!"
+cd project-source
+./gradlew clean test
