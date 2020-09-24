@@ -4,14 +4,14 @@ resources:
     source:
       uri: 'git@github.com:CardinalHealth/rdw-application.git'
       branch: release
-      private_key: ((common.ent_sales_sfdc_timsarver_test_pk))
+      private_key: ((rdw.RDW_APPLICATION_GIT_PK))
   - name: ci
     type: git
     source:
       uri: 'https://github.com/cah-omar-yusuf/ci.git'
       branch: master
-      private_key: ((common.ent_sales_sfdc_timsarver_test_pk))
-      
+      private_key: ((rdw.RDW_APPLICATION_GIT_PK))
+
 jobs:
   - name: Gradle Test
     plan:
