@@ -1,2 +1,2 @@
 cd project-source
-./gradlew clean test
+ls -al
