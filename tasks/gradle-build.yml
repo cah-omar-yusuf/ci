@@ -3,8 +3,8 @@ platform: linux
 image_resource:
   type: registry-image
   source:
-    repository: "nexus.cardinalhealth.net:8445/anapsix/alpine-java"
-    tag: 8_jdk
+    repository: "nexus-nonprod.cardinalhealth.net:8445/timbru31/java-node"
+    tag: jdk
 inputs:
   - name: project-source
   - name: ci

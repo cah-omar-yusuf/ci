@@ -19,7 +19,7 @@ resources:
   webhook_token: token_123
   source:
     repository: CardinalHealth/rdw-application
-    access_token: 65fab33f15b01c9becbc1f41bdea8064a17d06c7
+    access_token: 
 
 - name: ci
   type: git
@@ -80,11 +80,12 @@ jobs:
   - name: Sonarqube
     max_in_flight: 1
     plan:
+      - get: ci
       - get: project-source
         trigger: true
         version: every
-      # - task: gradle-build
-      #   file: ci/tasks/gradle-build.yml
+      - task: gradle-build
+        file: ci/tasks/gradle-build.yml
       - put: code-analysis
         params:
           project_path: project-source
