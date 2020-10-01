@@ -83,8 +83,8 @@ jobs:
       - get: project-source
         trigger: true
         version: every
-      - task: gradle-build
-        file: ci/tasks/gradle-build.yml
+      # - task: gradle-build
+      #   file: ci/tasks/gradle-build.yml
       - put: code-analysis
         params:
           project_path: project-source
