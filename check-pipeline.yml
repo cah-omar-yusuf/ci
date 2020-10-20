@@ -1,0 +1,136 @@
+resource_types:
+
+- name: pull-request
+  type: docker-image
+  source:
+    repository: teliaoss/github-pr-resource
+
+- name: sonar-runner
+  type: docker-image
+  source:
+    repository: "nexus-nonprod.cardinalhealth.net:8445/cathive/concourse-sonarqube-resource"
+    tag: 0.11.4
+
+resources:
+
+- name: project-source
+  type: pull-request
+  check_every: 1m
+  webhook_token: token_123
+  source:
+    repository: CardinalHealth/rdw-application
+    access_token: 
+
+- name: ci
+  type: git
+  source:
+    uri: 'https://github.com/cah-omar-yusuf/ci.git'
+    branch: configure-gradle-test
+    private_key: ((rdw.RDW_APPLICATION_GIT_PK))
+
+- name: code-analysis
+  type: sonar-runner
+  source:
+    host_url: https://sonarqube.dev1.cardinalhealth.net
+    login: ((common.SONAR_USER))
+    password: ((common.SONAR_PASSWORD))
+
+jobs:
+  - name: Unit Test
+    max_in_flight: 1
+    plan:
+      - get: ci
+      - get: project-source
+        trigger: true
+        version: every
+      - put: project-source
+        params:
+          base_context: check
+          context: unit-test
+          path: project-source
+          status: pending
+      - task: gradle-test
+        file: ci/tasks/gradle-test.yml
+        params:
+          RDW_AUTH_URL: https://identity.dev.cardinalhealth.net/oauth2/v1/introspect
+          RDW_CLIENTID: 0oap5xgcnhBEQtjom0h7
+          RDW_POSTGRES_URL: jdbc:postgresql://rdwpostgresdev01.Cardinalhealth.net/rdw
+          RDW_POSTGRES_USERID: postgres
+          RDW_RESOURCE_ID: https://identity.dev.cardinalhealth.net
+          RDW_USERINFO_URL: https://identity.dev.cardinalhealth.net/oauth2/v1/userinfo
+          RDW_PROJECT_ID: pharmaqra-np-cah
+          GOOGLE_APPLICATION_CREDENTIALS_BASE64: ((rdw.GOOGLE_APPLICATION_CREDENTIALS_BASE64_NP))
+          CURRENT_ENV: dev
+          APP_NAME: RDW
+        on_success:
+          put: project-source
+          params:
+            base_context: check
+            context: unit-test
+            path: project-source
+            status: success
+        on_failure:
+          put: project-source
+          params:
+            base_context: check
+            context: unit-test
+            path: project-source
+            status: failure
+
+  - name: Sonarqube
+    max_in_flight: 1
+    plan:
+      - get: ci
+      - get: project-source
+        trigger: true
+        version: every
+      - put: project-source
+        params:
+          base_context: check
+          context: sonarqube
+          path: project-source
+          status: pending
+      - task: gradle-build
+        file: ci/tasks/gradle-build.yml
+      - put: code-analysis
+        params:
+          APP_NAME: RDW
+          CURRENT_ENV: dev
+          GOOGLE_APPLICATION_CREDENTIALS_BASE64: ((rdw.GOOGLE_APPLICATION_CREDENTIALS_BASE64_NP))
+          RDW_AUTH_URL: https://identity.dev.cardinalhealth.net/oauth2/v1/introspect
+          RDW_CLIENTID: 0oap5xgcnhBEQtjom0h7
+          RDW_POSTGRES_URL: jdbc:postgresql://rdwpostgresdev01.Cardinalhealth.net/rdw
+          RDW_POSTGRES_USERID: postgres
+          RDW_PROJECT_ID: pharmaqra-np-cah
+          RDW_RESOURCE_ID: https://identity.dev.cardinalhealth.net
+          RDW_USERINFO_URL: https://identity.dev.cardinalhealth.net/oauth2/v1/userinfo
+          project_path: project-source
+          project_version_file: project-source/version/number
+          additional_properties:
+            sonar.core.serverBaseURL: https://sonarqube.dev1.cardinalhealth.net
+            sonar.projectKey: rdw-application
+            sonar.projectName: "rdw-application"
+            sonar.projectDescription: "Regulatory Data Warehouse application"
+            sonar.sources: "./server/src"
+            sonar.language: java
+            sonar.java.binaries: "./server/build"
+            sonar.sourceEncoding: UTF-8
+            sonar.jacoco.reportPaths: "./server/build/jacoco/test.exec"
+            sonar.coverage.jacoco.xmlReportPaths: "./server/build/reports/jacoco/test/jacocoTestReport.xml"
+            sonar.exclusions: "server/src/main/java/com/cardinal/rdw/entities/**, server/src/main/java/com/cardinal/rdw/security/**, server/src/main/java/com/cardinal/rdw/model/**, server/src/test/**"
+      - task: quality-gate
+        file: ci/tasks/sonarqube.yml
+        on_success:
+          put: project-source
+          params:
+            base_context: check
+            context: sonarqube
+            path: project-source
+            status: success
+        on_failure:
+          put: project-source
+          params:
+            base_context: check
+            context: sonarqube
+            path: project-source
+            status: failure
