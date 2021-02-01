@@ -3,8 +3,8 @@ platform: linux
 image_resource:
   type: registry-image
   source:
-    repository: "nexus.cardinalhealth.net:8445/anapsix/alpine-java"
-    tag: 11_jdk
+    repository: "nexus.cardinalhealth.net:8445/openjdk"
+    tag: 11.0-jre-slim
 inputs:
   - name: project-source
   - name: ci
