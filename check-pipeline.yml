@@ -18,14 +18,14 @@ resources:
   check_every: 1m
   webhook_token: token_123
   source:
-    repository: CardinalHealth/rdw-application
+    repository: CardinalHealth/regrpt-rdi-application-server
     access_token: 
 
 - name: ci
   type: git
   source:
     uri: 'https://github.com/cah-omar-yusuf/ci.git'
-    branch: master
+    branch: rdi-config
     private_key: ((rdw.RDW_APPLICATION_GIT_PK))
 
 - name: code-analysis
@@ -52,17 +52,12 @@ jobs:
       - task: gradle-test
         file: ci/tasks/gradle-test.yml
         params:
-          RDW_AUTH_URL: https://identity.dev.cardinalhealth.net/oauth2/v1/introspect
-          RDW_CLIENTID: 0oap5xgcnhBEQtjom0h7
-          RDW_POSTGRES_URL: jdbc:postgresql://rdwpostgresdev01.Cardinalhealth.net/rdw
-          RDW_POSTGRES_USERID: postgres
-          RDW_RESOURCE_ID: https://identity.dev.cardinalhealth.net
-          RDW_USERINFO_URL: https://identity.dev.cardinalhealth.net/oauth2/v1/userinfo
-          RDW_PROJECT_ID: pharmaqra-np-cah
+          RDW_POSTGRES_USERID: rdw_app
+          RDW_POSTGRES_PASSWORD: ((rdw.RDW_POSTGRES_DEV_PASSWORD))
+          RDW_GCP_CONNECTION_NAME: pharmaqra-np-cah:us-central1:rdwpostgres-np01
           GOOGLE_APPLICATION_CREDENTIALS_BASE64: ((rdw.GOOGLE_APPLICATION_CREDENTIALS_BASE64_NP))
-          CURRENT_ENV: dev
-          APP_NAME: RDW
-        on_success:
+          GOOGLE_APPLICATION_CREDENTIALS_PCF: ((rdi.pharmaqra-np-rdi-serviceaccount-key))
+          on_success:
           put: project-source
           params:
             base_context: check
