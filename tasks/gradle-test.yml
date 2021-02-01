@@ -4,7 +4,7 @@ image_resource:
   type: registry-image
   source:
     repository: "nexus.cardinalhealth.net:8445/openjdk"
-    tag: 11.0-jre-slim
+    tag: 11.0-jdk-slim
 inputs:
   - name: project-source
   - name: ci
