@@ -19,7 +19,7 @@ resources:
   webhook_token: token_123
   source:
     repository: CardinalHealth/regrpt-rdi-application-server
-    access_token: 
+    access_token: ((rdi.github_access_token))
 
 - name: ci
   type: git
